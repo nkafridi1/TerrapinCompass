@@ -1,12 +1,19 @@
 import sys, os
-if __name__ == "__main__" and not os.environ.get("_TC_LAUNCHED"):
-    import subprocess
-    env = {**os.environ, "_TC_LAUNCHED": "1"}
-    sys.exit(subprocess.run([
-        sys.executable, "-m", "streamlit", "run", __file__,
-        "--server.headless", "false",
-        "--browser.gatherUsageStats", "false",
-    ] + sys.argv[1:], env=env).returncode)
+if __name__ == "__main__":
+    # Skip if already inside Streamlit's runtime (local or cloud)
+    _in_streamlit = False
+    try:
+        from streamlit.runtime.scriptrunner import get_script_run_ctx
+        _in_streamlit = get_script_run_ctx() is not None
+    except Exception:
+        pass
+    if not _in_streamlit:
+        import subprocess
+        sys.exit(subprocess.run([
+            sys.executable, "-m", "streamlit", "run", __file__,
+            "--server.headless", "false",
+            "--browser.gatherUsageStats", "false",
+        ] + sys.argv[1:]).returncode)
 
 import streamlit as st
 from claude_client import ClaudeClient, DEMO_MODE
