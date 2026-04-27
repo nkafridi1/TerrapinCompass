@@ -1,11 +1,12 @@
-import sys
-if __name__ == "__main__":
+import sys, os
+if __name__ == "__main__" and not os.environ.get("_TC_LAUNCHED"):
     import subprocess
+    env = {**os.environ, "_TC_LAUNCHED": "1"}
     sys.exit(subprocess.run([
         sys.executable, "-m", "streamlit", "run", __file__,
         "--server.headless", "false",
         "--browser.gatherUsageStats", "false",
-    ] + sys.argv[1:]).returncode)
+    ] + sys.argv[1:], env=env).returncode)
 
 import streamlit as st
 from claude_client import ClaudeClient, DEMO_MODE
